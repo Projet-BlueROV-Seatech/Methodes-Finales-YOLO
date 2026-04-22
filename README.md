@@ -1,4 +1,4 @@
-# Détection et Tracking 3D du BlueROV2 (YOLO + Stéréovision)
+# Détection et Tracking 3D du BlueROV2 (YOLO + Triangulation 3D)
 
 Ce dépôt contient le pipeline complet de notre projet SYSMER : détecter et localiser en 3D un robot sous-marin BlueROV2 à l'aide de deux caméras fisheye, d'un réseau de neurones YOLOv8 et de la triangulation stéréoscopique d'OpenCV.
 
