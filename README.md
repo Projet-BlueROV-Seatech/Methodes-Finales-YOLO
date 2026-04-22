@@ -1,10 +1,215 @@
-# Détection et Tracking 3D du BlueROV2 (YOLO + Triangulation 3D)
+# SYSMER — Tracking 3D de Robot par Vision Stéréo + YOLO
 
-Ce dépôt contient le pipeline complet de notre projet SYSMER : détecter et localiser en 3D un robot sous-marin BlueROV2 à l'aide de deux caméras fisheye, d'un réseau de neurones YOLOv8 et de la triangulation stéréoscopique d'OpenCV.
+Système de localisation 3D temps réel d'un robot sous-marin (BlueROV) à partir de deux caméras stéréo calibrées et d'un modèle de détection **YOLOv8** entraîné sur mesure.
 
-Le principe : YOLO détecte le robot dans chaque caméra, on triangule les deux points 2D pour reconstruire sa position en 3D, et on l'affiche en temps réel sur une carte vue de dessus + profil.
+---
 
-> Ce repo est la **suite logique** du repo [Méthodes Classiques (OpenCV)](lien_vers_repo_openCV), qui documente pourquoi nous avons abandonné les approches HSV / ORB au profit de YOLO.
+## Table des matières
+
+1. [Vue d'ensemble du projet](#-vue-densemble-du-projet)
+2. [Prérequis matériels](#-prérequis-matériels)
+3. [Installation de Python](#-étape-1--installation-de-python)
+4. [Installation de l'IDE](#-étape-2--installation-de-lide)
+5. [Téléchargement du projet](#-étape-3--téléchargement-du-projet)
+6. [Installation des bibliothèques](#-étape-4--installation-des-bibliothèques)
+7. [Structure du projet](#-structure-du-projet)
+8. [Utilisation — Mode Direct (Temps réel)](#-étape-5--utilisation--mode-direct-temps-réel)
+9. [Utilisation — Mode Post-Traitement (Vidéo)](#-étape-6--utilisation--mode-post-traitement-vidéo)
+10. [Comparaison TSV](#-étape-7--comparaison-tsv)
+11. [Problèmes fréquents](#-problèmes-fréquents)
+
+---
+
+## Vue d'ensemble du projet
+
+Ce projet est composé de **trois modules** distincts :
+
+| Module | Description |
+|--------|-------------|
+| `Direct/` | Tracking en **temps réel** depuis deux caméras USB |
+| `Post_Traitement/` | Tracking en **différé** depuis des fichiers vidéo `.avi` |
+| `Comparaison_tsv/` | Comparaison des trajectoires YOLO avec un système de référence (Qualisys) |
+
+Le pipeline complet se déroule en 4 grandes phases :
+
+```
+Calibration Intrinsèque → Calibration Extrinsèque → Redressement du sol → Tracking YOLO
+```
+
+---
+
+## Prérequis matériels
+
+Avant de commencer, assurez-vous de disposer de :
+
+- Un **PC Windows 10/11** (les chemins dans les scripts sont écrits pour Windows)
+- **2 caméras USB** (webcams ou caméras industrielles) pour le mode Direct
+- Une **mire ArUco** imprimée : grille 6×6, dictionnaire `DICT_APRILTAG_36h11`, marqueurs de 88 mm avec espacement de 28 mm
+- Un modèle YOLO entraîné (`best.pt`) — fichier à obtenir séparément
+
+---
+
+## Étape 1 : Installation de Python
+
+### 1.1 Télécharger Python
+
+Rendez-vous sur le site officiel : **https://www.python.org/downloads/**
+
+Téléchargez la version **Python 3.10** ou **3.11** (recommandé pour la compatibilité avec toutes les bibliothèques).
+
+> **Attention** : N'installez pas Python 3.13 ou plus récent, car certaines bibliothèques comme `ultralytics` peuvent ne pas encore être compatibles.
+
+### 1.2 Installer Python
+
+Lancez l'installateur téléchargé et, **avant de cliquer sur "Install Now"**, cochez impérativement la case :
+
+```
+☑ Add Python to PATH
+```
+
+Puis cliquez sur **"Install Now"**.
+
+### 1.3 Vérifier l'installation
+
+Ouvrez un **Invite de commandes** (touche `Win` → tapez `cmd` → Entrée) et tapez :
+
+```bash
+python --version
+```
+
+Vous devriez voir quelque chose comme `Python 3.11.x`. Si c'est le cas, Python est bien installé.
+
+---
+
+## Étape 2 : Installation de l'IDE
+
+L'IDE utilisé pour ce projet est **Spyder**, inclus dans la distribution **Anaconda**.
+
+### 2.1 Télécharger Anaconda
+
+Rendez-vous sur : **https://www.anaconda.com/download**
+
+Cliquez sur **"Download"** pour Windows et lancez l'installateur. Anaconda installe automatiquement Python, Spyder, et un gestionnaire de paquets (`conda`).
+
+> Si Anaconda est déjà installé sur votre machine, passez directement à l'étape 2.3.
+
+### 2.2 Installer Anaconda
+
+Lors de l'installation, laissez toutes les options par défaut. À l'écran des options avancées, cochez :
+
+```
+☑ Add Anaconda to my PATH environment variable
+```
+
+### 2.3 Lancer Spyder
+
+Une fois Anaconda installé, ouvrez le **Anaconda Navigator** (depuis le menu Démarrer) et cliquez sur **"Launch"** sous Spyder.
+
+Ou directement depuis l'Invite de commandes Anaconda :
+
+```bash
+spyder
+```
+
+### 2.4 Configurer le répertoire de travail dans Spyder
+
+Pour que Spyder trouve bien vos fichiers, définissez le dossier de travail :
+
+1. En haut à droite de Spyder, cliquez sur l'icône 📁 **"Global working directory"**
+2. Naviguez jusqu'au dossier du projet, par exemple :
+   ```
+   C:\Users\VotreNom\Desktop\Projet_SYSMER_2A\
+   ```
+
+---
+
+## Étape 3 : Téléchargement du projet
+
+### Option A — Depuis GitHub
+
+1. Rendez-vous sur la page du dépôt GitHub
+2. Cliquez sur le bouton vert **"Code"** → **"Download ZIP"**
+3. Extrayez le ZIP dans un dossier de votre choix, par exemple :
+   ```
+   C:\Users\VotreNom\Desktop\Projet_SYSMER_2A\
+   ```
+
+### Option B — Via Git (si Git est installé)
+
+```bash
+git clone https://github.com/<votre-repo>/Methodes-Finales-YOLO.git
+```
+
+### 3.1 Adapter les chemins dans les scripts
+
+> **Important** : Les scripts contiennent des chemins codés en dur qu'il faut adapter à votre machine.
+
+Ouvrez chaque script Python et remplacez toutes les occurrences de :
+
+```python
+r"C:\Users\theoc\Desktop\Projet_SYSMER_2A\Calibrage Direct"
+```
+
+par le chemin du dossier `Matrice/` correspondant sur votre machine, par exemple :
+
+```python
+r"C:\Users\VotreNom\Desktop\Projet_SYSMER_2A\Direct\Matrice"
+```
+
+Les fichiers concernés sont : `Intrinsec.py`, `Extrinsec.py`, `Redressement.py`, `Tracking.py` (dans `Direct/Code/` et `Post_Traitement/Codes/`).
+
+---
+
+## Étape 4 : Installation des bibliothèques
+
+### 4.1 Ouvrir le terminal Anaconda
+
+Ouvrez l'**Anaconda Prompt** depuis le menu Démarrer (cherchez "Anaconda Prompt"), puis naviguez vers le dossier du projet :
+
+```bash
+cd C:\Users\VotreNom\Desktop\Projet_SYSMER_2A
+```
+
+### 4.2 (Recommandé) Créer un environnement conda dédié
+
+```bash
+conda create -n sysmer python=3.11
+conda activate sysmer
+```
+
+Vous devriez voir `(sysmer)` apparaître au début de votre ligne de commande.
+
+> ⚠️ Pour que Spyder utilise cet environnement, installez-y aussi le noyau Spyder :
+> ```bash
+> conda install spyder-kernels
+> ```
+> Puis dans Spyder : **Outils → Préférences → Python interpreter → Use the following Python interpreter**, et pointez vers l'environnement `sysmer`.
+
+### 4.3 Installer toutes les bibliothèques
+
+Exécutez la commande suivante pour tout installer d'un coup :
+
+```bash
+pip install opencv-python opencv-contrib-python numpy ultralytics scipy pandas matplotlib
+```
+
+Détail des bibliothèques installées :
+
+| Bibliothèque | Rôle dans le projet |
+|---|---|
+| `opencv-python` | Lecture vidéo, affichage, calculs de vision |
+| `opencv-contrib-python` | Détection ArUco, calibration stéréo |
+| `numpy` | Calculs matriciels (calibration, triangulation) |
+| `ultralytics` | Modèle YOLO pour la détection du robot |
+| `scipy` | Optimisation de la rotation, interpolation des trajectoires |
+| `pandas` | Lecture et manipulation des fichiers `.tsv` |
+| `matplotlib` | Tracé des trajectoires comparées |
+
+### 4.4 Vérifier l'installation
+
+```bash
+python -c "import cv2; import ultralytics; import numpy; print('✅ Tout est installé !')"
+```
 
 ---
 
@@ -13,310 +218,188 @@ Le principe : YOLO détecte le robot dans chaque caméra, on triangule les deux 
 ```
 Methodes-Finales-YOLO-main/
 │
-├── Direct/                      → Pipeline en temps réel (caméras branchées en direct)
+├── Direct/                         ← Mode temps réel (caméras USB)
 │   ├── Code/
-│   │   ├── Test_Index.py        ← Étape 0 : Trouver les index de vos caméras
-│   │   ├── Intrinsec.py         ← Étape 1 : Calibration intrinsèque (K, D) × 2 caméras
-│   │   ├── Extrinsec.py         ← Étape 2 : Calibration extrinsèque (position relative)
-│   │   ├── Passage.py           ← Étape 3 : Construction des matrices de projection P1, P2
-│   │   ├── Redressement.py      ← Étape 4 : Calibration du plan sol (redressement Y)
-│   │   └── Tracking.py          ← Étape 5 : Tracking 3D en direct avec YOLO
-│   └── Matrice/                 → Matrices de calibration pré-calculées (.npy)
-│       ├── K1.npy, K2.npy       (matrices intrinsèques)
-│       ├── D1.npy, D2.npy       (coefficients de distorsion)
-│       ├── P1.npy, P2.npy       (matrices de projection stéréo)
-│       ├── R_c2_c1.npy          (rotation entre caméras)
-│       ├── t_c2_c1.npy          (translation entre caméras)
-│       ├── R_redressement.npy   (correction du plan sol)
-│       └── hauteur_cam1.npy     (hauteur de la caméra 1 au-dessus du sol)
+│   │   ├── Intrinsec.py            # Calibration intrinsèque (distorsion objectif)
+│   │   ├── Extrinsec.py            # Calibration extrinsèque (position relative des caméras)
+│   │   ├── Redressement.py         # Calibration du sol (axe vertical = gravité)
+│   │   ├── Tracking.py             # Tracking YOLO en temps réel ← SCRIPT PRINCIPAL
+│   │   ├── Passage.py              # Conversion de repères
+│   │   └── Test_Index.py           # Test des indices caméras
+│   └── Matrice/                    # Matrices de calibration (fichiers .npy)
+│       ├── K1.npy, K2.npy          # Matrices intrinsèques
+│       ├── D1.npy, D2.npy          # Coefficients de distorsion
+│       ├── P1.npy, P2.npy          # Matrices de projection
+│       ├── R_c2_c1.npy             # Rotation cam2 → cam1
+│       ├── t_c2_c1.npy             # Translation cam2 → cam1
+│       ├── R_redressement.npy      # Rotation de redressement du sol
+│       └── hauteur_cam1.npy        # Hauteur de la caméra 1
 │
-├── Post_Traitement/             → Pipeline sur vidéos pré-enregistrées (même logique)
-│   ├── Codes/
-│   │   ├── enregistre.py        ← Enregistre les flux des 2 caméras en .avi
-│   │   ├── Intrinsec.py
-│   │   ├── Extrinsec.py
-│   │   ├── Passage.py
-│   │   ├── Redressement.py
-│   │   └── Tracking.py
-│   ├── Matrice/                 → Idem que Direct/Matrice/
-│   ├── Tsv/                     → Trajectoires de référence Qualisys (vérité terrain)
+├── Post_Traitement/                ← Mode différé (fichiers vidéo)
+│   ├── Codes/                      # Mêmes scripts, adaptés pour les vidéos
+│   ├── Matrice/                    # Matrices de calibration
+│   ├── Tsv/                        # Données de trajectoires exportées
 │   └── Videos/
-│       ├── Etalonnage/          (vidéos des mires de calibration)
-│       └── Sequences/           (vidéos des séquences de test avec le robot)
+│       ├── Etalonnage/             # Vidéos de calibration
+│       └── Sequences/              # Vidéos de tracking
 │
 └── Comparaison_tsv/
-    └── TSV_Rota.py              ← Compare la trajectoire YOLO avec Qualisys (RMSE)
+    └── TSV_Rota.py                 # Comparaison YOLO vs Qualisys
 ```
-
-**Quelle version utiliser ?**
-- **`Direct/`** : vous avez les deux caméras branchées et voulez tracker le robot en temps réel.
-- **`Post_Traitement/`** : vous avez déjà enregistré les vidéos (avec `enregistre.py`) et voulez rejouer le pipeline hors ligne.
 
 ---
 
-## Étape 0 — Installer Python et les dépendances
+## Étape 5 : Utilisation — Mode Direct (Temps réel)
 
-### 0.1 Installer Python
+Le mode Direct effectue le tracking en capturant les images directement depuis vos caméras USB.
 
-1. Rendez-vous sur **[python.org/downloads](https://www.python.org/downloads/)** et téléchargez **Python 3.10** ou **3.11** (recommandé).
-2. Lancez l'installateur. ** Cochez bien "Add Python to PATH"** avant de cliquer sur "Install Now".
-3. Vérifiez que l'installation a fonctionné en ouvrant un terminal et en tapant :
-   ```bash
-   python --version
+### Phase 1 — Calibration Intrinsèque (une seule fois par caméra)
+
+Ce script calcule les paramètres optiques de chaque caméra (focale, distorsion).
+
+**Répétez cette opération pour chaque caméra (cam1 et cam2).**
+
+1. Ouvrez `Direct/Code/Intrinsec.py`
+2. Adaptez les paramètres en haut du fichier :
+   ```python
+   FICHIER_K_OUT = "K1.npy"   # K1.npy pour cam1, K2.npy pour cam2
+   FICHIER_D_OUT = "D1.npy"   # D1.npy pour cam1, D2.npy pour cam2
    ```
-   Vous devriez voir quelque chose comme `Python 3.11.x`.
+3. Filmez la mire ArUco en effectuant des mouvements variés (inclinaisons, rotations, bords du cadre)
+4. Exécutez le script :
+   ```bash
+   python Direct/Code/Intrinsec.py
+   ```
+5. Le script extrait automatiquement des images toutes les 45 frames. Il s'arrête quand 20 images valides sont capturées.
+6. ✅ Résultat attendu : `RMS < 2.0 pixels` et génération de `K1.npy` et `D1.npy`
 
-### 0.2 Installer les dépendances
+> 💡 Si le RMS est trop élevé, filmez à nouveau en variant davantage les angles et la distance.
 
-Toutes les bibliothèques nécessaires s'installent en une seule commande :
-```bash
-pip install opencv-python numpy ultralytics scipy matplotlib pandas
-```
+### Phase 2 — Calibration Extrinsèque (une seule fois par setup)
 
-Voilà à quoi sert chaque bibliothèque :
-- `opencv-python` : traitement d'image, détection ArUco, triangulation stéréo
-- `numpy` : calcul matriciel (matrices de calibration, points 3D)
-- `ultralytics` : YOLOv8 (détection du robot)
-- `scipy` : optimisation Nelder-Mead pour la calibration extrinsèque
-- `matplotlib` : affichage 3D de validation des calibrations
-- `pandas` : lecture des fichiers TSV Qualisys (utilisé uniquement dans `TSV_Rota.py`)
+Ce script calcule la position et l'orientation relative entre les deux caméras.
 
->  Si vous êtes sous Windows et que `pip` n'est pas reconnu, remplacez-le par `python -m pip install ...`.
+1. Placez la mire ArUco dans le champ de vision **commun** aux deux caméras
+2. Exécutez le script :
+   ```bash
+   python Direct/Code/Extrinsec.py
+   ```
+3. Le déclenchement est automatique quand au moins 20 ArUcos communs sont détectés sur 3 frames consécutives
+4. Un affichage 3D apparaît pour valider la pose : confirmez en console
+5. ✅ Résultat : génération de `R_c2_c1.npy`, `t_c2_c1.npy`, `P1.npy`, `P2.npy`
 
----
+### Phase 3 — Calibration du Sol / Redressement (une seule fois par setup)
 
-## Ce qu'il vous faut avant de commencer
+Ce script oriente l'axe Y du repère monde selon la gravité (sol horizontal).
 
-- **Un modèle YOLO entraîné** sur le BlueROV2 (fichier `.pt`). Notez bien le chemin vers votre fichier `best.pt`, vous en aurez besoin à l'étape 5.
-- **Deux caméras fisheye** branchées en USB.
-- **Une mire ArUco** : un plateau 6×6 de tags `DICT_APRILTAG_36h11` (chaque marqueur fait 88 mm, espacement 28 mm).
+1. Posez la mire ArUco à plat sur le sol, dans le champ de la caméra 1
+2. Exécutez le script :
+   ```bash
+   python Direct/Code/Redressement.py
+   ```
+3. Un affichage 3D valide l'orientation : confirmez en console
+4. ✅ Résultat : génération de `R_redressement.npy` et `hauteur_cam1.npy`
 
----
+### Phase 4 — Tracking en Temps Réel
 
-## Étape 1 — Trouver les index de vos caméras
+1. Placez votre modèle YOLO entraîné (`best.pt`) à l'emplacement indiqué dans le script
+2. Vérifiez que toutes les matrices `.npy` sont présentes dans `Direct/Matrice/`
+3. Branchez vos deux caméras USB (indices `0` et `1`)
+4. Lancez le tracking :
+   ```bash
+   python Direct/Code/Tracking.py
+   ```
 
-Avant toute chose, il faut savoir quel index OpenCV a attribué à chacune de vos deux caméras.
+**Interface de l'application :**
 
-**Lancez `Test_Index.py` :**
-```bash
-python Direct/Code/Test_Index.py
-```
-Le script teste les index 0 à 9, ouvre chaque caméra et affiche l'index à l'écran pendant 5 secondes. Notez lesquels correspondent à vos caméras gauche et droite.
+| Zone | Contenu |
+|------|---------|
+| En haut | Flux vidéo des deux caméras avec les détections YOLO encadrées |
+| Bas gauche | Vue de dessus (plan X-Z) avec la trajectoire du robot |
+| Bas centre | Vue de profil (plan Z-Y, hauteur) |
+| Bas droit | Tableau de bord : coordonnées 3D, distance, FPS, état de l'enregistrement |
 
->  **À adapter :** Dans tous les scripts qui suivent, `ID_CAM1` et `ID_CAM2` (ou les lignes `cv2.VideoCapture(...)`) devront correspondre aux index que vous venez de trouver.
-
----
-
-## Étape 2 — Calibration intrinsèque (à faire pour chaque caméra)
-
-Cette étape calcule les paramètres optiques de chaque caméra (focale, centre optique, distorsion) et les sauvegarde dans des fichiers `.npy`.
-
-**Script :** `Intrinsec.py`
-
-### 2.1 Préparer votre vidéo
-
-Filmez votre mire ArUco en la déplaçant lentement devant la caméra : faites-la pivoter, inclinez-la, approchez-la des bords de l'image. Plus vous couvrez de positions différentes, meilleure sera la calibration.
-
-### 2.2 Configurer le script
-
-Ouvrez `Intrinsec.py` et modifiez le bloc de configuration en haut du fichier :
-```python
-CHEMIN_VIDEO = r"C:\chemin\vers\votre\video_cam1.avi"  # ← Votre vidéo
-FICHIER_K_OUT = "K1.npy"   # ← K1.npy pour la caméra gauche, K2.npy pour la droite
-FICHIER_D_OUT = "D1.npy"   # ← D1.npy pour la caméra gauche, D2.npy pour la droite
-```
-
-### 2.3 Lancer le script
-
-```bash
-python Direct/Code/Intrinsec.py
-```
-Le script extrait automatiquement 20 images de la vidéo (une toutes les 45 frames) et calcule le modèle de lentille. À la fin, il affiche le **RMS de reprojection** :
-- ✅ `RMS < 2.0` → calibration acceptée, les fichiers `K1.npy` et `D1.npy` sont sauvegardés.
-- ❌ `RMS ≥ 2.0` → calibration rejetée. Re-filmez avec plus de diversité de positions.
-
-**Répétez l'opération pour la deuxième caméra** en changeant `CHEMIN_VIDEO`, `FICHIER_K_OUT` et `FICHIER_D_OUT` pour la caméra 2.
-
->  **À adapter :** Si vous utilisez une mire de taille différente, modifiez `L` (taille du marqueur en mètres) et `S` (espacement en mètres) en haut du script.
-
----
-
-## Étape 3 — Calibration extrinsèque (position relative des caméras)
-
-Cette étape détermine la position et l'orientation d'une caméra par rapport à l'autre. Elle nécessite que les deux caméras voient la mire en même temps.
-
-**Script :** `Extrinsec.py`
-
-### 3.1 Configurer le script
-
-```python
-DOSSIER_CALIB  = r"C:\chemin\vers\votre\dossier_matrice"  # ← Là où sont K1.npy, K2.npy, D1.npy, D2.npy
-DOSSIER_SORTIE = DOSSIER_CALIB                             # ← Là où seront sauvegardées les nouvelles matrices
-ID_CAM1 = 0   # ← Index de votre caméra gauche
-ID_CAM2 = 1   # ← Index de votre caméra droite
-```
-
-### 3.2 Lancer le script
-
-```bash
-python Direct/Code/Extrinsec.py
-```
-Le script ouvre les flux des deux caméras en direct. Placez la mire pour qu'elle soit visible par les deux caméras simultanément.
-
-**Procédure :**
-1. Quand vous êtes prêt, appuyez sur **ENTRÉE** pour lancer l'analyse de stabilité.
-2. Le système attend que 20 ArUcos communs soient visibles et stables pendant 10 frames consécutives.
-3. Un graphique 3D s'affiche pour valider visuellement la position relative des deux caméras.
-4. Répondez `O` dans le terminal pour sauvegarder, ou `N` pour recommencer.
-
-Les fichiers sauvegardés sont : `R_c2_c1.npy`, `t_c2_c1.npy`, `c2Mc1.npy`, `wMc1.npy`, `wMc2.npy`.
-
----
-
-## Étape 4 — Construction des matrices de projection
-
-À partir des matrices intrinsèques et extrinsèques, on construit les matrices `P1` et `P2` dont a besoin OpenCV pour la triangulation.
-
-**Script :** `Passage.py`
-
-### 4.1 Configurer le script
-
-```python
-DOSSIER = r"C:\chemin\vers\votre\dossier_matrice"  # ← Le même dossier qu'à l'étape précédente
-```
-
-### 4.2 Lancer le script
-
-```bash
-python Direct/Code/Passage.py
-```
-Le script se termine en quelques secondes et génère `P1.npy` et `P2.npy` dans votre dossier.
-
----
-
-## Étape 5 — Calibration du plan sol (redressement)
-
-Les caméras ne regardent pas exactement vers le bas, ce qui introduit une inclinaison dans les coordonnées 3D reconstruites. Cette étape calcule une matrice de rotation pour "redresser" le repère de sorte que l'axe Y corresponde bien à la gravité.
-
-**Script :** `Redressement.py`
-
-### 5.1 Configurer le script
-
-```python
-DOSSIER_CALIB = r"C:\chemin\vers\votre\dossier_matrice"
-ID_CAM1 = 0
-```
-
-### 5.2 Lancer le script
-
-```bash
-python Direct/Code/Redressement.py
-```
-
-**Procédure :**
-1. Posez la mire **à plat sur le sol** du bassin (ou de la surface de test).
-2. Appuyez sur **ENTRÉE** pour lancer l'analyse.
-3. Un graphique 3D s'affiche avec les axes du nouveau repère monde.
-4. Répondez `O` pour sauvegarder.
-
-Les fichiers sauvegardés sont : `R_redressement.npy` et `hauteur_cam1.npy`.
-
->  **Cette étape est optionnelle.** Si `R_redressement.npy` est absent, `Tracking.py` démarrera quand même avec le repère brut de la caméra 1 (il affichera un avertissement).
-
----
-
-## Étape 6 — Lancer le Tracking 3D
-
-C'est le script principal. Il ouvre les deux caméras, lance YOLO sur chaque flux, triangule la position du robot et affiche tout en temps réel.
-
-**Script :** `Tracking.py`
-
-### 6.1 Configurer le script
-
-```python
-dossier = r"C:\chemin\vers\votre\dossier_matrice"  # ← Dossier contenant tous les .npy
-```
-Et plus bas, la ligne du modèle YOLO :
-```python
-model = YOLO(r'C:\chemin\vers\votre\best.pt')  # ← Votre modèle entraîné
-```
-
-### 6.2 Lancer le script
-
-```bash
-python Direct/Code/Tracking.py
-```
-
-### 6.3 Interface et contrôles
-
-La fenêtre affiche :
-- En haut : flux vidéo des deux caméras avec la bounding box YOLO.
-- En bas à gauche : vue de dessus (plan X-Z) avec la trajectoire et les cônes de vision.
-- En bas au milieu : vue de profil (plan Z-Y) avec la hauteur du robot.
-- En bas à droite : coordonnées X, Y, Z en temps réel, FPS, état de détection.
+**Commandes clavier :**
 
 | Touche | Action |
 |--------|--------|
-| `Q` | Quitter proprement (sauvegarde le TSV) |
-| `ESPACE` | Mettre en pause |
+| `Q` | Quitter le programme |
+| `Espace` | Mettre en pause / reprendre |
 | `R` | Activer / désactiver l'enregistrement dans le fichier TSV |
 
-La trajectoire est automatiquement sauvegardée dans un fichier `trajectoire_robot_temps_reel.tsv` dans votre dossier de matrices.
+✅ Un fichier `trajectoire_robot_temps_reel.tsv` est généré automatiquement dans le dossier de calibration.
 
 ---
 
-## (Optionnel) Mode Post-Traitement
+## Étape 6 : Utilisation — Mode Post-Traitement (Vidéo)
 
-Si vous avez enregistré vos vidéos à l'avance (utile quand les caméras ne sont pas sur le même PC que le code), utilisez les scripts du dossier `Post_Traitement/Codes/`.
+Ce mode fonctionne de manière identique au mode Direct, mais lit des fichiers vidéo `.avi` préenregistrés au lieu d'utiliser les caméras en direct. Il est utile pour rejouer et analyser des séquences.
 
-### Enregistrer les vidéos
+Les vidéos de calibration et de séquences sont fournies dans `Post_Traitement/Videos/`.
 
-```bash
-python Post_Traitement/Codes/enregistre.py
-```
-
->  **À adapter :** Modifiez les noms des fichiers de sortie (`Balade_Air1_3.avi`, `Balade_Air2_3.avi`) et les index de caméras dans `enregistre.py`.
-
-Ensuite, répétez les étapes 1 à 5 en utilisant les scripts de `Post_Traitement/Codes/` à la place de ceux de `Direct/Code/`, et en pointant `CHEMIN_VIDEO` vers vos fichiers `.avi` au lieu des flux caméra.
-
-Des vidéos de calibration et des séquences de test sont déjà disponibles dans `Post_Traitement/Videos/` pour tester le pipeline sans avoir le matériel.
+1. **Calibration** : exécutez les scripts dans `Post_Traitement/Codes/` dans le même ordre (Intrinsec → Extrinsec → Redressement), en veillant à ce que les chemins pointent vers `Post_Traitement/Videos/Etalonnage/`
+2. **Tracking** : lancez `Post_Traitement/Codes/Tracking.py` en configurant les chemins vers les vidéos `Sequences/`
+3. Un fichier script `enregistre.py` est disponible pour gérer l'export des données
 
 ---
 
-## (Optionnel) Comparaison avec Qualisys
+## Étape 7 : Comparaison TSV
 
-Si vous avez une vérité terrain Qualisys, le script `TSV_Rota.py` compare la trajectoire produite par YOLO avec celle du système de référence et calcule le RMSE par axe.
+Le script `Comparaison_tsv/TSV_Rota.py` permet de comparer la trajectoire estimée par le système YOLO avec une trajectoire de référence issue du système **Qualisys** (mocap).
 
-```bash
-python Comparaison_tsv/TSV_Rota.py
-```
+### Prérequis
 
->  **À adapter :** Modifiez les chemins vers vos fichiers TSV en haut du script (`df_a = pd.read_csv(...)` pour Qualisys, `df_b = pd.read_csv(...)` pour la trajectoire YOLO).
+Vous devez disposer de :
+- Un fichier `.tsv` exporté par Qualisys (trajectoire de référence)
+- Un fichier `.tsv` généré par le tracking YOLO
 
-Le script produit :
-- Une vue 3D superposant les deux trajectoires.
-- Une vue de dessus (plan X-Y).
-- L'évolution de la hauteur (axe Z).
-- Le RMSE global et par axe affiché en bas du graphique.
+### Lancer la comparaison
 
----
+1. Placez vos deux fichiers TSV dans le dossier `Comparaison_tsv/`
+2. Ouvrez `TSV_Rota.py` et adaptez les noms de fichiers :
+   ```python
+   df_a = pd.read_csv('votre_fichier_qualisys.tsv', sep='\t', skiprows=11)
+   df_b = pd.read_csv('trajectoire_robot_clean.tsv', sep='\t')
+   ```
+3. Exécutez le script :
+   ```bash
+   python Comparaison_tsv/TSV_Rota.py
+   ```
 
-## Récapitulatif de l'ordre d'exécution
-
-```
-Test_Index.py          → Trouver les index des caméras
-       ↓
-Intrinsec.py (×2)      → K1, D1, K2, D2
-       ↓
-Extrinsec.py           → R_c2_c1, t_c2_c1, c2Mc1, wMc1, wMc2
-       ↓
-Passage.py             → P1, P2
-       ↓
-Redressement.py        → R_redressement, hauteur_cam1
-       ↓
-Tracking.py            → Tracking 3D en temps réel 
-```
+Le script aligne automatiquement les deux trajectoires par optimisation de rotation et affiche les courbes comparatives avec `matplotlib`.
 
 ---
 
-*Projet réalisé dans le cadre du module de vision par ordinateur — SeaTech, 2025-2026.*
+## Problèmes fréquents
+
+**Les caméras ne s'ouvrent pas (`Impossible d'ouvrir l'une des caméras`)**
+→ Vérifiez que les deux caméras sont bien branchées. Testez les indices `0`, `1`, `2` dans `Test_Index.py` pour trouver les bons numéros.
+
+**Erreur `FileNotFoundError` sur les fichiers `.npy`**
+→ Les chemins dans les scripts sont incorrects. Relisez l'Étape 3.1 et adaptez toutes les variables `dossier` et `DOSSIER_CALIB`.
+
+**`ModuleNotFoundError: No module named 'ultralytics'`**
+→ L'environnement conda n'est peut-être pas activé. Dans l'Anaconda Prompt, exécutez `conda activate sysmer` puis relancez le script.
+
+**Le modèle YOLO ne détecte rien**
+→ Vérifiez que le chemin vers `best.pt` est correct dans `Tracking.py`. Assurez-vous que le robot est visible dans les deux caméras simultanément.
+
+**RMS de calibration trop élevé (> 2.0)**
+→ Filmez à nouveau la mire en variant fortement les angles, distances et orientations. Évitez le flou de bougé.
+
+**Le redressement du sol ne fonctionne pas**
+→ La mire doit être posée strictement à plat, entièrement visible depuis la caméra 1, dans de bonnes conditions d'éclairage.
+
+---
+
+## Format des fichiers TSV exportés
+
+Le tracking génère un fichier TSV avec les colonnes suivantes :
+
+| Colonne | Description |
+|---------|-------------|
+| `Frame` | Numéro de la frame |
+| `Temps(s)` | Timestamp en secondes |
+| `X(m)` | Position latérale en mètres |
+| `Y(m)` | Hauteur en mètres |
+| `Z(m)` | Profondeur (distance caméra) en mètres |
