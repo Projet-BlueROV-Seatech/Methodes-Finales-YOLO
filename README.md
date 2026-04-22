@@ -4,7 +4,7 @@ Ce dépôt contient le pipeline complet de notre projet SYSMER : détecter et lo
 
 Le principe : YOLO détecte le robot dans chaque caméra, on triangule les deux points 2D pour reconstruire sa position en 3D, et on l'affiche en temps réel sur une carte vue de dessus + profil.
 
-> 📁 Ce repo est la **suite logique** du repo [Méthodes Classiques (OpenCV)](lien_vers_repo_openCV), qui documente pourquoi nous avons abandonné les approches HSV / ORB au profit de YOLO.
+> Ce repo est la **suite logique** du repo [Méthodes Classiques (OpenCV)](lien_vers_repo_openCV), qui documente pourquoi nous avons abandonné les approches HSV / ORB au profit de YOLO.
 
 ---
 
@@ -59,7 +59,7 @@ Methodes-Finales-YOLO-main/
 ### 0.1 Installer Python
 
 1. Rendez-vous sur **[python.org/downloads](https://www.python.org/downloads/)** et téléchargez **Python 3.10** ou **3.11** (recommandé).
-2. Lancez l'installateur. **⚠️ Cochez bien "Add Python to PATH"** avant de cliquer sur "Install Now".
+2. Lancez l'installateur. ** Cochez bien "Add Python to PATH"** avant de cliquer sur "Install Now".
 3. Vérifiez que l'installation a fonctionné en ouvrant un terminal et en tapant :
    ```bash
    python --version
@@ -81,7 +81,7 @@ Voilà à quoi sert chaque bibliothèque :
 - `matplotlib` : affichage 3D de validation des calibrations
 - `pandas` : lecture des fichiers TSV Qualisys (utilisé uniquement dans `TSV_Rota.py`)
 
-> 💡 Si vous êtes sous Windows et que `pip` n'est pas reconnu, remplacez-le par `python -m pip install ...`.
+>  Si vous êtes sous Windows et que `pip` n'est pas reconnu, remplacez-le par `python -m pip install ...`.
 
 ---
 
@@ -103,7 +103,7 @@ python Direct/Code/Test_Index.py
 ```
 Le script teste les index 0 à 9, ouvre chaque caméra et affiche l'index à l'écran pendant 5 secondes. Notez lesquels correspondent à vos caméras gauche et droite.
 
-> ⚙️ **À adapter :** Dans tous les scripts qui suivent, `ID_CAM1` et `ID_CAM2` (ou les lignes `cv2.VideoCapture(...)`) devront correspondre aux index que vous venez de trouver.
+>  **À adapter :** Dans tous les scripts qui suivent, `ID_CAM1` et `ID_CAM2` (ou les lignes `cv2.VideoCapture(...)`) devront correspondre aux index que vous venez de trouver.
 
 ---
 
@@ -137,7 +137,7 @@ Le script extrait automatiquement 20 images de la vidéo (une toutes les 45 fram
 
 **Répétez l'opération pour la deuxième caméra** en changeant `CHEMIN_VIDEO`, `FICHIER_K_OUT` et `FICHIER_D_OUT` pour la caméra 2.
 
-> ⚙️ **À adapter :** Si vous utilisez une mire de taille différente, modifiez `L` (taille du marqueur en mètres) et `S` (espacement en mètres) en haut du script.
+>  **À adapter :** Si vous utilisez une mire de taille différente, modifiez `L` (taille du marqueur en mètres) et `S` (espacement en mètres) en haut du script.
 
 ---
 
@@ -221,7 +221,7 @@ python Direct/Code/Redressement.py
 
 Les fichiers sauvegardés sont : `R_redressement.npy` et `hauteur_cam1.npy`.
 
-> 💡 **Cette étape est optionnelle.** Si `R_redressement.npy` est absent, `Tracking.py` démarrera quand même avec le repère brut de la caméra 1 (il affichera un avertissement).
+>  **Cette étape est optionnelle.** Si `R_redressement.npy` est absent, `Tracking.py` démarrera quand même avec le repère brut de la caméra 1 (il affichera un avertissement).
 
 ---
 
@@ -275,7 +275,7 @@ Si vous avez enregistré vos vidéos à l'avance (utile quand les caméras ne so
 python Post_Traitement/Codes/enregistre.py
 ```
 
-> ⚙️ **À adapter :** Modifiez les noms des fichiers de sortie (`Balade_Air1_3.avi`, `Balade_Air2_3.avi`) et les index de caméras dans `enregistre.py`.
+>  **À adapter :** Modifiez les noms des fichiers de sortie (`Balade_Air1_3.avi`, `Balade_Air2_3.avi`) et les index de caméras dans `enregistre.py`.
 
 Ensuite, répétez les étapes 1 à 5 en utilisant les scripts de `Post_Traitement/Codes/` à la place de ceux de `Direct/Code/`, et en pointant `CHEMIN_VIDEO` vers vos fichiers `.avi` au lieu des flux caméra.
 
@@ -291,7 +291,7 @@ Si vous avez une vérité terrain Qualisys, le script `TSV_Rota.py` compare la t
 python Comparaison_tsv/TSV_Rota.py
 ```
 
-> ⚙️ **À adapter :** Modifiez les chemins vers vos fichiers TSV en haut du script (`df_a = pd.read_csv(...)` pour Qualisys, `df_b = pd.read_csv(...)` pour la trajectoire YOLO).
+>  **À adapter :** Modifiez les chemins vers vos fichiers TSV en haut du script (`df_a = pd.read_csv(...)` pour Qualisys, `df_b = pd.read_csv(...)` pour la trajectoire YOLO).
 
 Le script produit :
 - Une vue 3D superposant les deux trajectoires.
@@ -314,7 +314,7 @@ Passage.py             → P1, P2
        ↓
 Redressement.py        → R_redressement, hauteur_cam1
        ↓
-Tracking.py            → Tracking 3D en temps réel 🚀
+Tracking.py            → Tracking 3D en temps réel 
 ```
 
 ---
