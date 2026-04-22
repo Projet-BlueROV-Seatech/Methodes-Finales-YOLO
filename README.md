@@ -115,7 +115,7 @@ spyder
 
 Pour que Spyder trouve bien vos fichiers, définissez le dossier de travail :
 
-1. En haut à droite de Spyder, cliquez sur l'icône 📁 **"Global working directory"**
+1. En haut à droite de Spyder, cliquez sur l'icône  **"Global working directory"**
 2. Naviguez jusqu'au dossier du projet, par exemple :
    ```
    C:\Users\VotreNom\Desktop\Projet_SYSMER_2A\
@@ -179,7 +179,7 @@ conda activate sysmer
 
 Vous devriez voir `(sysmer)` apparaître au début de votre ligne de commande.
 
-> ⚠️ Pour que Spyder utilise cet environnement, installez-y aussi le noyau Spyder :
+>  Pour que Spyder utilise cet environnement, installez-y aussi le noyau Spyder :
 > ```bash
 > conda install spyder-kernels
 > ```
@@ -208,7 +208,7 @@ Détail des bibliothèques installées :
 ### 4.4 Vérifier l'installation
 
 ```bash
-python -c "import cv2; import ultralytics; import numpy; print('✅ Tout est installé !')"
+python -c "import cv2; import ultralytics; import numpy; print(' Tout est installé !')"
 ```
 
 ---
@@ -244,7 +244,11 @@ Methodes-Finales-YOLO-main/
 │       └── Sequences/              # Vidéos de tracking
 │
 └── Comparaison_tsv/
-    └── TSV_Rota.py                 # Comparaison YOLO vs Qualisys
+│    └── TSV_Rota.py                 # Comparaison YOLO vs Qualisys
+│
+└── Modèles YOLO
+   └── best_air.pt                   # Modèle pour des test en air
+   └── best_eau.pt                   # Modèle pour des test en eau
 ```
 
 ---
@@ -271,9 +275,9 @@ Ce script calcule les paramètres optiques de chaque caméra (focale, distorsion
    python Direct/Code/Intrinsec.py
    ```
 5. Le script extrait automatiquement des images toutes les 45 frames. Il s'arrête quand 20 images valides sont capturées.
-6. ✅ Résultat attendu : `RMS < 2.0 pixels` et génération de `K1.npy` et `D1.npy`
+6.  Résultat attendu : `RMS < 2.0 pixels` et génération de `K1.npy` et `D1.npy`
 
-> 💡 Si le RMS est trop élevé, filmez à nouveau en variant davantage les angles et la distance.
+>  Si le RMS est trop élevé, filmez à nouveau en variant davantage les angles et la distance.
 
 ### Phase 2 — Calibration Extrinsèque (une seule fois par setup)
 
@@ -286,7 +290,7 @@ Ce script calcule la position et l'orientation relative entre les deux caméras.
    ```
 3. Le déclenchement est automatique quand au moins 20 ArUcos communs sont détectés sur 3 frames consécutives
 4. Un affichage 3D apparaît pour valider la pose : confirmez en console
-5. ✅ Résultat : génération de `R_c2_c1.npy`, `t_c2_c1.npy`, `P1.npy`, `P2.npy`
+5. Résultat : génération de `R_c2_c1.npy`, `t_c2_c1.npy`, `P1.npy`, `P2.npy`
 
 ### Phase 3 — Calibration du Sol / Redressement (une seule fois par setup)
 
@@ -298,7 +302,7 @@ Ce script oriente l'axe Y du repère monde selon la gravité (sol horizontal).
    python Direct/Code/Redressement.py
    ```
 3. Un affichage 3D valide l'orientation : confirmez en console
-4. ✅ Résultat : génération de `R_redressement.npy` et `hauteur_cam1.npy`
+4. Résultat : génération de `R_redressement.npy` et `hauteur_cam1.npy`
 
 ### Phase 4 — Tracking en Temps Réel
 
@@ -327,7 +331,7 @@ Ce script oriente l'axe Y du repère monde selon la gravité (sol horizontal).
 | `Espace` | Mettre en pause / reprendre |
 | `R` | Activer / désactiver l'enregistrement dans le fichier TSV |
 
-✅ Un fichier `trajectoire_robot_temps_reel.tsv` est généré automatiquement dans le dossier de calibration.
+Un fichier `trajectoire_robot_temps_reel.tsv` est généré automatiquement dans le dossier de calibration.
 
 ---
 
