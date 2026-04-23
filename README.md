@@ -6,17 +6,17 @@ Système de localisation 3D temps réel d'un robot sous-marin (BlueROV) à parti
 
 ## Table des matières
 
-1. [Vue d'ensemble du projet](#-vue-densemble-du-projet)
-2. [Prérequis matériels](#-prérequis-matériels)
-3. [Installation de Python](#-étape-1--installation-de-python)
-4. [Installation de l'IDE](#-étape-2--installation-de-lide)
-5. [Téléchargement du projet](#-étape-3--téléchargement-du-projet)
-6. [Installation des bibliothèques](#-étape-4--installation-des-bibliothèques)
-7. [Structure du projet](#-structure-du-projet)
-8. [Utilisation — Mode Direct (Temps réel)](#-étape-5--utilisation--mode-direct-temps-réel)
-9. [Utilisation — Mode Post-Traitement (Vidéo)](#-étape-6--utilisation--mode-post-traitement-vidéo)
-10. [Comparaison TSV](#-étape-7--comparaison-tsv)
-11. [Problèmes fréquents](#-problèmes-fréquents)
+1. [Vue d'ensemble du projet](#vue-densemble-du-projet)
+2. [Prérequis matériels](#prérequis-matériels)
+3. [Installation de Python](#étape-1--installation-de-python)
+4. [Installation de l'IDE](#étape-2--installation-de-lide)
+5. [Téléchargement du projet](#étape-3--téléchargement-du-projet)
+6. [Installation des bibliothèques](#étape-4--installation-des-bibliothèques)
+7. [Structure du projet](#structure-du-projet)
+8. [Mode Direct (Temps réel)](#étape-5--utilisation--mode-direct-temps-réel)
+9. [Mode Post-Traitement (Vidéo)](#étape-6--utilisation--mode-post-traitement-vidéo)
+10. [Comparaison TSV](#étape-7--comparaison-tsv)
+11. [Problèmes fréquents](#problèmes-fréquents)
 
 ---
 
