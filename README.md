@@ -290,7 +290,7 @@ Ce script calcule la position et l'orientation relative entre les deux caméras.
    ```
 3. Le déclenchement est automatique quand au moins 20 ArUcos communs sont détectés sur 3 frames consécutives
 4. Un affichage 3D apparaît pour valider la pose : confirmez en console
-5. Résultat : génération de `R_c2_c1.npy`, `t_c2_c1.npy`, `P1.npy`, `P2.npy`
+5. Résultat : génération de `R_c2_c1.npy`, `t_c2_c1.npy`
 
 ### Phase 3 : Matrices de Projection (une seule fois par setup)
 
