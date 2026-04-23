@@ -39,8 +39,8 @@ pts_yolo_raw = np.column_stack([
 # Ce qui donne la matrice de rotation ci-dessous (det = +1 → rotation propre) :
 #
 #         Xq   Yq   Zq
-#   Xy  [-1    0    0 ]
-#   Yy  [ 0    0   -1 ]
+#   Xy  [1    0    0 ]
+#   Yy  [ 0    0   1 ]
 #   Zy  [ 0   -1    0 ]
 
 R_yolo_to_qualisys = np.array([
@@ -58,7 +58,7 @@ pts_yolo_aligned = (R_yolo_to_qualisys @ pts_yolo_raw.T).T  # shape (N, 3)
 
 ax_x_b = pts_yolo_aligned[:, 0]
 ax_y_b = pts_yolo_aligned[:, 1]
-ax_z_b = pts_yolo_aligned[:, 2]
+ax_z_b = -pts_yolo_aligned[:, 2]
 
 # =============================================================================
 # 3. CENTRAGE PAR RAPPORT AU DÉBUT DE LA TRAJECTOIRE
