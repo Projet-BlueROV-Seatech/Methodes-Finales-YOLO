@@ -292,7 +292,18 @@ Ce script calcule la position et l'orientation relative entre les deux caméras.
 4. Un affichage 3D apparaît pour valider la pose : confirmez en console
 5. Résultat : génération de `R_c2_c1.npy`, `t_c2_c1.npy`, `P1.npy`, `P2.npy`
 
-### Phase 3 — Calibration du Sol / Redressement (une seule fois par setup)
+### Phase 3 : Matrices de Projection (une seule fois par setup)
+
+Cette étape purement algébrique prépare les matrices finales pour la triangulation.
+
+1. Exécutez le script :
+   ```bash
+   python Direct/Code/Passage.py
+   ```
+2. Le code va lire les fichiers générés aux étapes 1 et 2.
+3. Résultat : Il génère automatiquement `P1.npy` et `P2.npy` dans votre dossier.
+
+### Phase 4 — Calibration du Sol / Redressement (une seule fois par setup)
 
 Ce script oriente l'axe Y du repère monde selon la gravité (sol horizontal).
 
@@ -304,7 +315,7 @@ Ce script oriente l'axe Y du repère monde selon la gravité (sol horizontal).
 3. Un affichage 3D valide l'orientation : confirmez en console
 4. Résultat : génération de `R_redressement.npy` et `hauteur_cam1.npy`
 
-### Phase 4 — Tracking en Temps Réel
+### Phase 5 — Tracking en Temps Réel
 
 1. Placez votre modèle YOLO entraîné (`best.pt`) à l'emplacement indiqué dans le script
 2. Vérifiez que toutes les matrices `.npy` sont présentes dans `Direct/Matrice/`
