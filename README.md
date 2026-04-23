@@ -387,6 +387,9 @@ Le script aligne automatiquement les deux trajectoires par optimisation de rotat
 
 ## Problèmes fréquents
 
+**La matrice de rotation n'est pas toujours correct selon les repères**
+→ Faire varier les valeurs de la matrice `R_yolo_to_qualisys` pour trouver la bonne superposition.
+
 **Les caméras ne s'ouvrent pas (`Impossible d'ouvrir l'une des caméras`)**
 → Vérifiez que les deux caméras sont bien branchées. Testez les indices `0`, `1`, `2` dans `Test_Index.py` pour trouver les bons numéros.
 
