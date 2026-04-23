@@ -275,7 +275,7 @@ Ce script calcule les paramètres optiques de chaque caméra (focale, distorsion
    python Direct/Code/Intrinsec.py
    ```
 5. Le script extrait automatiquement des images toutes les 45 frames. Il s'arrête quand 20 images valides sont capturées.
-6.  Résultat attendu : `RMS < 2.0 pixels` et génération de `K1.npy` et `D1.npy`
+6.  Résultat attendu : `RMS < 1.5 pixels` et génération de `K1.npy` et `D1.npy`
 
 >  Si le RMS est trop élevé, filmez à nouveau en variant davantage les angles et la distance.
 
